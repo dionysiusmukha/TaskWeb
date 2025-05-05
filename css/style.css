@@ -87,6 +87,7 @@ main {
     max-height: 400px;
     min-height: 400px;
     min-width: 250px;
+    max-width: 250px;
     background: #F9F6F6;
     box-shadow: 10px 4px 5px rgba(0, 0, 0, 0.25);
     border-radius: 5px;
@@ -101,9 +102,10 @@ main {
     font-weight: 400;
     font-size: 16px;
     line-height: 140%;
-    border-top: 1px solid #eee;
     margin-left: 1%;
     margin-top: auto;
+    user-select: none;
+    width: 160px;
 }
 
 .textInRect:hover {
@@ -174,4 +176,13 @@ main {
 
 .container-for-cards::-webkit-scrollbar-thumb:hover {
     background-color: #555;
+}
+
+#delete-card-btn {
+    width: 20px;
+    height: 20px;
+    position: fixed;
+    margin-top: 377px;
+    margin-left: 215px;
+    cursor: pointer;
 }
