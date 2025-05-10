@@ -161,7 +161,7 @@ main {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-
+    flex-grow: 1;
 }
 
 .container-for-cards::-webkit-scrollbar {
@@ -181,8 +181,11 @@ main {
 #delete-card-btn {
     width: 20px;
     height: 20px;
-    position: fixed;
-    margin-top: 377px;
-    margin-left: 215px;
     cursor: pointer;
+    margin-left: 25%;
+}
+
+#cont-text-for-and-delete {
+    display: flex;
+    border-top: 1px solid #eee;
 }
