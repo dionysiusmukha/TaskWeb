@@ -39,6 +39,7 @@ header {
     font-weight: 600;
     font-size: large;
     transition: transform  0.3s ease;
+    user-select: none;
 }
 
 
@@ -49,6 +50,7 @@ header {
 .imgBell {
     transition: transform 0.3s ease;
     padding-left: 45px;
+    user-select: none;
 }
 
 .imgBell:hover {
@@ -122,6 +124,8 @@ main {
     margin-bottom: 2.5px;
     border-radius: 3px;
     background-color: gainsboro;
+    display: flex;
+    flex-direction: column;
 }
 
 .name-task {
@@ -178,14 +182,38 @@ main {
     background-color: #555;
 }
 
-#delete-card-btn {
+#delete-task-btn {
     width: 20px;
     height: 20px;
     cursor: pointer;
     margin-left: 25%;
+    user-select: none;
 }
 
 #cont-text-for-and-delete {
     display: flex;
     border-top: 1px solid #eee;
+}
+
+#card-name {
+    font-size: 12px;
+    font-weight: 200;
+}
+
+#delete-card-btn {
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+    align-self: flex-end;
+    margin-right: 5px;
+    user-select: none;
+}
+
+.main-card {
+    min-height: 24px;
+}
+
+
+#card-name {
+    margin-left: 3px;
 }
