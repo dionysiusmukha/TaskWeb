@@ -46,6 +46,35 @@ function addTask() {
 
 
     const containerForCards = document.createElement('div');
+    containerForCards.addEventListener('dragenter', function (e) {
+        e.preventDefault();
+        this.parentNode.classList.add('drag-over');
+    });
+
+    containerForCards.addEventListener('dragleave', function (e) {
+        this.parentNode.classList.remove('drag-over');
+    });
+
+    containerForCards.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
+
+    containerForCards.addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.parentNode.classList.remove('drag-over');
+
+        const cardHTML = e.dataTransfer.getData('text/plain');
+        this.insertAdjacentHTML('beforeend', cardHTML);
+
+        const newCard = this.lastElementChild;
+        if (newCard) {
+            newCard.classList.add('card-enter');
+            setCardDragEvents(newCard);
+        }
+    });
+
+
     containerForCards.classList.add('container-for-cards');
     task.appendChild(containerForCards);
 
@@ -55,7 +84,7 @@ function addTask() {
 
 
     const textElemnt = document.createElement('p');
-    textElemnt.textContent = "+ Добавить карточку";
+    textElemnt.textContent = "Добавить карточку...";
     textElemnt.classList.add('textInRect');
     containerForTextAndDelete.appendChild(textElemnt);
     textElemnt.addEventListener('click',addCard);
@@ -74,7 +103,8 @@ function addCard() {
     const containerForCards = taskElement.querySelector('.container-for-cards');
     const card = document.createElement('div');
     card.classList.add('cards');
-    containerForCards.insertBefore(card,containerForCards.firstChild);
+    containerForCards.appendChild(card,containerForCards.firstChild);
+
 
     const cardName = document.createElement('p');
     cardName.setAttribute('id', 'card-name');
@@ -106,13 +136,19 @@ function addCard() {
     const mainCard = document.createElement('div');
     mainCard.classList.add('main-card');
     card.appendChild(mainCard);
+    card.setAttribute('draggable', 'true');
+    card.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', card.outerHTML);
+        e.dataTransfer.effectAllowed = "move";
+        setTimeout(() => card.remove(), 0);
+    });
 
     const deleteCardBtn = document.createElement('img');
     deleteCardBtn.setAttribute('id', 'delete-card-btn');
     deleteCardBtn.setAttribute('src', 'img/bin.svg')
     card.appendChild(deleteCardBtn);
     deleteCardBtn.addEventListener('click', deleteCard);
-
+    setCardDragEvents(card);
 }
 
 function deleteTask() {
@@ -123,4 +159,48 @@ function deleteTask() {
 function deleteCard() {
     const card = this.parentNode;
     card.remove();
+}
+
+function showSettings(event) {
+    const card = event.currentTarget.closest('.cards');
+    const menu = card.querySelector('.settings-menu');
+
+}
+
+function setCardDragEvents(card) {
+    card.setAttribute('draggable', 'true');
+    card.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', card.outerHTML);
+        e.dataTransfer.effectAllowed = "move";
+        setTimeout(() => card.remove(), 0);
+    });
+
+    // Восстанавливаем события на редактируемое имя и кнопку удаления
+    const deleteBtn = card.querySelector('#delete-card-btn');
+    if (deleteBtn) deleteBtn.addEventListener('click', deleteCard);
+
+    const cardName = card.querySelector('#card-name');
+    if (cardName) {
+        cardName.addEventListener('blur', function () {
+            if (this.textContent.trim() === '') {
+                cardEmpty++;
+                this.textContent = `Name Empty${cardEmpty}`;
+            }
+        });
+
+        cardName.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.blur();
+            }
+        });
+
+        const MAX_LENGTH = 30;
+        cardName.addEventListener('input', function () {
+            if (this.textContent.length > MAX_LENGTH) {
+                this.textContent = this.textContent.substring(0, MAX_LENGTH);
+                alert(`Максимальная длина - ${MAX_LENGTH} символов`);
+            }
+        });
+    }
 }
