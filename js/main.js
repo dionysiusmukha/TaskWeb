@@ -1,11 +1,11 @@
+
 let taskCounter = 0;
 let taskEmpty = 0;
 let cardCounter = 0;
 let cardEmpty = 0;
-document.getElementById('main-btn').addEventListener('click', addTask);
+document.getElementById('main-btn').addEventListener('click', () => addTask());
 
-
-function addTask() {
+function addTask(initialalName = null) {
     const container = document.getElementById('container-main');
     taskCounter++;
 
@@ -21,7 +21,18 @@ function addTask() {
     nameTask.classList.add('name-task');
     nameAndCategory.appendChild(nameTask);
     nameTask.setAttribute('contenteditable','true');
-    nameTask.textContent = `Name ${taskCounter}`;
+    nameTask.textContent = initialalName || `Цель ${taskCounter}`;
+    let taskName = nameTask.textContent.toLowerCase().trim();
+    if (taskName === 'планируется') {
+        nameAndCategory.classList.add('task-header', 'planned');
+    } else if (taskName === 'в работе') {
+        nameAndCategory.classList.add('task-header', 'in-progress');
+    } else if (taskName === 'готово') {
+        nameAndCategory.classList.add('task-header', 'done');
+    } else {
+        nameAndCategory.classList.add('task-header', 'default');
+    }
+
     nameTask.addEventListener('blur', function () {
         if (this.textContent.trim() === '') {
             taskEmpty++;
@@ -35,7 +46,6 @@ function addTask() {
         }
     });
     const MAX_LENGTH = 18;
-
     nameTask.addEventListener('input', function() {
         if (this.textContent.length > MAX_LENGTH) {
             this.textContent = this.textContent.substring(0, MAX_LENGTH);
@@ -43,74 +53,85 @@ function addTask() {
         }
     });
 
-
-
     const containerForCards = document.createElement('div');
-    containerForCards.addEventListener('dragenter', function (e) {
-        e.preventDefault();
-        this.parentNode.classList.add('drag-over');
-    });
-
-    containerForCards.addEventListener('dragleave', function (e) {
-        this.parentNode.classList.remove('drag-over');
-    });
+    containerForCards.classList.add('container-for-cards');
+    task.appendChild(containerForCards);
 
     containerForCards.addEventListener('dragover', function (e) {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
     });
 
     containerForCards.addEventListener('drop', function (e) {
         e.preventDefault();
-        this.parentNode.classList.remove('drag-over');
+        dragCounter = 0; // сброс!
+        task.classList.remove('drag-over');
 
-        const cardHTML = e.dataTransfer.getData('text/plain');
-        this.insertAdjacentHTML('beforeend', cardHTML);
+        const cardId = e.dataTransfer.getData('text/plain');
+        const draggedCard = document.getElementById(cardId);
 
-        const newCard = this.lastElementChild;
-        if (newCard) {
-            newCard.classList.add('card-enter');
-            setCardDragEvents(newCard);
+        if (draggedCard) {
+            this.appendChild(draggedCard);
+            draggedCard.classList.remove(
+                'card-accent-planned',
+                'card-accent-in-progress',
+                'card-accent-done',
+                'card-accent-default'
+            );
+            draggedCard.classList.add(getTaskColorClass(task));
+            draggedCard.classList.add('card-enter');
+            setCardDragEvents(draggedCard);
         }
     });
 
 
-    containerForCards.classList.add('container-for-cards');
-    task.appendChild(containerForCards);
+    let dragCounter = 0;
+    task.addEventListener('dragenter', function (e) {
+        e.preventDefault();
+        dragCounter++;
+        this.classList.add('drag-over');
+    });
+
+    task.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+            task.classList.remove('drag-over');
+        }
+    });
 
     const containerForTextAndDelete = document.createElement('div');
     containerForTextAndDelete.setAttribute('id', 'cont-text-for-and-delete');
     task.appendChild(containerForTextAndDelete);
 
-
     const textElemnt = document.createElement('p');
     textElemnt.textContent = "Добавить карточку...";
     textElemnt.classList.add('textInRect');
     containerForTextAndDelete.appendChild(textElemnt);
-    textElemnt.addEventListener('click',addCard);
+    textElemnt.addEventListener('click', addCard);
 
     const deleteTaskBtn = document.createElement('img');
     deleteTaskBtn.setAttribute('id', 'delete-task-btn');
-    deleteTaskBtn.setAttribute('src', 'img/bin.svg')
+    deleteTaskBtn.setAttribute('src', 'img/bin.svg');
     containerForTextAndDelete.appendChild(deleteTaskBtn);
     deleteTaskBtn.addEventListener('click', deleteTask);
 }
-
 
 function addCard() {
     cardCounter++;
     const taskElement = this.parentNode.parentNode;
     const containerForCards = taskElement.querySelector('.container-for-cards');
     const card = document.createElement('div');
+    card.id = `card-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     card.classList.add('cards');
-    containerForCards.appendChild(card,containerForCards.firstChild);
-
+    containerForCards.appendChild(card);
 
     const cardName = document.createElement('p');
     cardName.setAttribute('id', 'card-name');
     cardName.setAttribute('contenteditable','true');
-    cardName.textContent = `Card ${cardCounter}`;
+    cardName.textContent = `Задача ${cardCounter}`;
     card.appendChild(cardName);
+    const colorClass = getTaskColorClass(taskElement);
+    card.classList.add(colorClass);
 
     cardName.addEventListener('blur', function () {
         if (this.textContent.trim() === '') {
@@ -125,7 +146,6 @@ function addCard() {
         }
     });
     const MAX_LENGTH = 30;
-
     cardName.addEventListener('input', function() {
         if (this.textContent.length > MAX_LENGTH) {
             this.textContent = this.textContent.substring(0, MAX_LENGTH);
@@ -137,17 +157,13 @@ function addCard() {
     mainCard.classList.add('main-card');
     card.appendChild(mainCard);
     card.setAttribute('draggable', 'true');
-    card.addEventListener('dragstart', function (e) {
-        e.dataTransfer.setData('text/plain', card.outerHTML);
-        e.dataTransfer.effectAllowed = "move";
-        setTimeout(() => card.remove(), 0);
-    });
 
     const deleteCardBtn = document.createElement('img');
     deleteCardBtn.setAttribute('id', 'delete-card-btn');
-    deleteCardBtn.setAttribute('src', 'img/bin.svg')
+    deleteCardBtn.setAttribute('src', 'img/bin.svg');
     card.appendChild(deleteCardBtn);
     deleteCardBtn.addEventListener('click', deleteCard);
+
     setCardDragEvents(card);
 }
 
@@ -161,46 +177,29 @@ function deleteCard() {
     card.remove();
 }
 
-function showSettings(event) {
-    const card = event.currentTarget.closest('.cards');
-    const menu = card.querySelector('.settings-menu');
-
-}
-
 function setCardDragEvents(card) {
     card.setAttribute('draggable', 'true');
     card.addEventListener('dragstart', function (e) {
-        e.dataTransfer.setData('text/plain', card.outerHTML);
-        e.dataTransfer.effectAllowed = "move";
-        setTimeout(() => card.remove(), 0);
+        e.dataTransfer.setData('text/plain', card.id);
+        e.dataTransfer.effectAllowed = 'move';
     });
+}
 
-    // Восстанавливаем события на редактируемое имя и кнопку удаления
-    const deleteBtn = card.querySelector('#delete-card-btn');
-    if (deleteBtn) deleteBtn.addEventListener('click', deleteCard);
-
-    const cardName = card.querySelector('#card-name');
-    if (cardName) {
-        cardName.addEventListener('blur', function () {
-            if (this.textContent.trim() === '') {
-                cardEmpty++;
-                this.textContent = `Name Empty${cardEmpty}`;
-            }
-        });
-
-        cardName.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.blur();
-            }
-        });
-
-        const MAX_LENGTH = 30;
-        cardName.addEventListener('input', function () {
-            if (this.textContent.length > MAX_LENGTH) {
-                this.textContent = this.textContent.substring(0, MAX_LENGTH);
-                alert(`Максимальная длина - ${MAX_LENGTH} символов`);
-            }
-        });
+function getTaskColorClass(taskElement) {
+    const header = taskElement.querySelector('.name-and-category');
+    if (header.classList.contains('planned')) {
+        return 'card-accent-planned';
+    } else if (header.classList.contains('in-progress')) {
+        return 'card-accent-in-progress';
+    } else if (header.classList.contains('done')) {
+        return 'card-accent-done';
+    } else {
+        return 'card-accent-default';
     }
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    addTask('Планируется');
+    addTask('В работе');
+    addTask('Готово');
+});

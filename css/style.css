@@ -83,13 +83,12 @@ main {
 }
 
 .task {
-    max-height: 400px;
-    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    height: 400px;
     min-width: 250px;
     max-width: 250px;
     background-color: #d9d9d9;
-    display: flex;
-    flex-direction: column;
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     padding: 10px;
@@ -138,7 +137,6 @@ main {
     top: 0;
     width: 6px;
     height: 100%;
-    background-color: #eb5a46;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
 }
@@ -162,25 +160,21 @@ main {
 
 
 .container-for-cards {
+    flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
 }
+
 
 .container-for-cards::-webkit-scrollbar {
     width: 6px;
-    height: 3px;
 }
 
 .container-for-cards::-webkit-scrollbar-thumb {
-    background-color: #eb5a46;
+    background-color: #888;
     border-radius: 3px;
-}
-
-.container-for-cards::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
 }
 
 #delete-task-btn {
@@ -223,20 +217,12 @@ main {
 }
 
 .task.drag-over {
-    background-color: #f0f8ff;
-    border: 2px dashed #007BFF;
-    transition: background-color 0.3s, border 0.3s;
+    outline: 3px dashed rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease;
 }
 
-.cards {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
 
-.cards.card-enter {
-    transform: scale(1.05);
-    opacity: 0;
-    animation: fadeIn 0.3s forwards;
-}
 
 @keyframes fadeIn {
     to {
@@ -244,3 +230,44 @@ main {
         opacity: 1;
     }
 }
+
+.task-header {
+    padding: 8px;
+    font-weight: bold;
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.task-header.planned {
+    background-color: #e74c3c;
+}
+
+.task-header.in-progress {
+    background-color: #f1c40f;
+    color: black;
+}
+
+.task-header.done {
+    background-color: #2ecc71;
+}
+
+.task-header.default {
+    background-color: #95a5a6;
+}
+
+.card-accent-planned {
+    border-left: 5px solid red;
+}
+
+.card-accent-in-progress {
+    border-left: 5px solid orange;
+}
+
+.card-accent-done {
+    border-left: 5px solid green;
+}
+
+.card-accent-default {
+    border-left: 5px solid rgb(128, 128, 128);
+}
+
