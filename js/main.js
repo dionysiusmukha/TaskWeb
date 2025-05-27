@@ -63,14 +63,21 @@ function addTask(initialalName = null) {
 
     containerForCards.addEventListener('drop', function (e) {
         e.preventDefault();
-        dragCounter = 0; // сброс!
+        dragCounter = 0;
         task.classList.remove('drag-over');
 
         const cardId = e.dataTransfer.getData('text/plain');
         const draggedCard = document.getElementById(cardId);
 
         if (draggedCard) {
-            this.appendChild(draggedCard);
+            const afterElement = getDragAfterElement(this, e.clientY);
+
+            if (afterElement && afterElement !== draggedCard) {
+                this.insertBefore(draggedCard, afterElement);
+            } else {
+                this.appendChild(draggedCard);
+            }
+
             draggedCard.classList.remove(
                 'card-accent-planned',
                 'card-accent-in-progress',
@@ -182,6 +189,11 @@ function setCardDragEvents(card) {
     card.addEventListener('dragstart', function (e) {
         e.dataTransfer.setData('text/plain', card.id);
         e.dataTransfer.effectAllowed = 'move';
+        card.classList.add('dragging');
+    });
+
+    card.addEventListener('dragend', function () {
+        card.classList.remove('dragging');
     });
 }
 
@@ -197,6 +209,22 @@ function getTaskColorClass(taskElement) {
         return 'card-accent-default';
     }
 }
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.cards:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closest.offset) {
+            return { offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
     addTask('Планируется');
